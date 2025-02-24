@@ -157,7 +157,7 @@ app.post("/image-upload", upload.single("image"), async (req,res) =>{
             return res.status(400).json({error: true, message: "File is required"});
         }
 
-        const imageUrl = `https://traveljourney-api.onrender.com/uploads/${req.file.filename}`;
+        const imageUrl = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/uploads/${req.file.filename}`;
 
         res.status(201).json({imageUrl});
     } catch (error) {
@@ -219,7 +219,7 @@ app.put("/edit-post/:id", authenticateToken, async (req,res) =>{
             return res.status(404).json({error: true, message: "Travel post not found"});
         }
 
-        const placeholderImgUrl = `https://traveljourney-api.onrender.com/assets/placeholder.png`;
+        const placeholderImgUrl = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/assets/placeholder.png`;
 
         travelPost.title = title;
         travelPost.description = description;
