@@ -51,7 +51,7 @@ app.post("/create-account", async (req, res) => {
     const accessToken = jwt.sign(
     {userId: user._id},
         process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn: "720h",}
+        {expiresIn: "72h",}
     );
 
     return res.status(201).json({
@@ -83,7 +83,7 @@ app.post("/login", async (req, res) => {
     const accessToken = jwt.sign(
         {userId: user._id},
         process.env.ACCESS_TOKEN_SECRET,
-        {expiresIn: "720h",}
+        {expiresIn: "72h",}
     );
 
     return res.json({
@@ -157,7 +157,7 @@ app.post("/image-upload", upload.single("image"), async (req,res) =>{
             return res.status(400).json({error: true, message: "File is required"});
         }
 
-        const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+        const imageUrl = `https://traveljourney-api.onrender.com/uploads/${req.file.filename}`;
 
         res.status(201).json({imageUrl});
     } catch (error) {
@@ -219,7 +219,7 @@ app.put("/edit-post/:id", authenticateToken, async (req,res) =>{
             return res.status(404).json({error: true, message: "Travel post not found"});
         }
 
-        const placeholderImgUrl = `http://localhost:8000/assets/placeholder.png`;
+        const placeholderImgUrl = `https://traveljourney-api.onrender.com/assets/placeholder.png`;
 
         travelPost.title = title;
         travelPost.description = description;
@@ -340,7 +340,7 @@ app.get("/travel-posts/filter", authenticateToken, async (req,res) =>{
     }
 })
 
-app.listen(8000);
+app.listen(process.env.PORT || 8000);
 module.exports = app;
 
 
