@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'https://traveljourney-api.onrender.com',
+    baseURL: `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}`,
     timeout: 10000,
     headers: {
         "Content-Type": "application/json"
