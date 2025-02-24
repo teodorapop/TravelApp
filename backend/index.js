@@ -24,7 +24,7 @@ app.use(express.json());
 
 app.use(cors(
     {
-        origin: [`${URL_HERE}`],
+        origin: [""],
         methods: ["GET", "POST"],
         credentials: true,
     }
@@ -165,7 +165,7 @@ app.post("/image-upload", upload.single("image"), async (req,res) =>{
             return res.status(400).json({error: true, message: "File is required"});
         }
 
-        const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
+        const imageUrl = `https://travel-app-api-drab.vercel.app/uploads/${req.file.filename}`;
 
         res.status(201).json({imageUrl});
     } catch (error) {
@@ -227,7 +227,7 @@ app.put("/edit-post/:id", authenticateToken, async (req,res) =>{
             return res.status(404).json({error: true, message: "Travel post not found"});
         }
 
-        const placeholderImgUrl = `http://localhost:8000/assets/placeholder.png`;
+        const placeholderImgUrl = `https://travel-app-api-drab.vercel.app/assets/placeholder.png`;
 
         travelPost.title = title;
         travelPost.description = description;
