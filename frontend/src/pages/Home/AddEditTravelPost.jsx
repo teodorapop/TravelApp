@@ -6,7 +6,6 @@ import TagInput from "../../components/Input/TagInput.jsx";
 import axiosInstance from "../../utils/axiosInstance.js";
 import moment from "moment";
 import uploadImage from "../../utils/uploadImage.js";
-import {toast} from "react-toastify";
 
 const AddEditTravelPost = ({
                                postInfo,

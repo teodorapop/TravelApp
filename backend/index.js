@@ -157,7 +157,7 @@ app.post("/image-upload", upload.single("image"), async (req,res) =>{
             return res.status(400).json({error: true, message: "File is required"});
         }
 
-        const imageUrl = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/uploads/${req.file.filename}`;
+        const imageUrl = `http://localhost:8000/uploads/${req.file.filename}`;
 
         res.status(201).json({imageUrl});
     } catch (error) {
@@ -219,7 +219,7 @@ app.put("/edit-post/:id", authenticateToken, async (req,res) =>{
             return res.status(404).json({error: true, message: "Travel post not found"});
         }
 
-        const placeholderImgUrl = `${import.meta.env.VITE_REACT_APP_BACKEND_BASEURL}/assets/placeholder.png`;
+        const placeholderImgUrl = `http://localhost:8000/assets/placeholder.png`;
 
         travelPost.title = title;
         travelPost.description = description;
@@ -340,7 +340,7 @@ app.get("/travel-posts/filter", authenticateToken, async (req,res) =>{
     }
 })
 
-app.listen(process.env.PORT || 3000);
+app.listen(8000);
 module.exports = app;
 
 
