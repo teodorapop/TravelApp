@@ -20,7 +20,15 @@ mongoose.connect(config.connectionString);
 
 const app = express();
 app.use(express.json());
-app.use(cors({origin: "*"}));
+// app.use(cors({origin: "*"}));
+
+app.use(cors(
+    {
+        origin: [`${URL_HERE}`],
+        methods: ["GET", "POST"],
+        credentials: true,
+    }
+))
 
 // Create account
 app.post("/create-account", async (req, res) => {
