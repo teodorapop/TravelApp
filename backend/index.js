@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const config = require("./config.json");
+// const config = require("./config.json");
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
 const express = require("express");
@@ -16,7 +16,7 @@ const User = require("./models/user.model");
 const TravelPost = require("./models/travelPost.model");
 const {parse} = require("dotenv");
 
-mongoose.connect(config.connectionString);
+mongoose.connect(connectionString);
 
 const app = express();
 app.use(express.json());
