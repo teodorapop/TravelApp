@@ -16,7 +16,7 @@ const User = require("./models/user.model");
 const TravelPost = require("./models/travelPost.model");
 const {parse} = require("dotenv");
 
-mongoose.connect(connectionString);
+mongoose.connect("mongodb+srv://teodorapop8431:mnDy9NVkVrdLUb74@travelpost.rzmh2.mongodb.net/?retryWrites=true&w=majority&appName=travelpost");
 
 const app = express();
 app.use(express.json());
