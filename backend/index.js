@@ -20,15 +20,13 @@ mongoose.connect("mongodb+srv://teodorapop8431:mnDy9NVkVrdLUb74@travelpost.rzmh2
 
 const app = express();
 app.use(express.json());
-app.use(cors({origin: "*"}));
+// app.use(cors({origin: "*"}));
 
-// app.use(cors(
-//     {
-//         origin: ["https://travel-app-frontend-grrx.onrender.com"],
-//         methods: ["GET", "POST"],
-//         credentials: true,
-//     }
-// ))
+app.use(cors({
+    origin: "https://travel-app-frontend-grrx.onrender.com",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 
 // Create account
 app.post("/create-account", async (req, res) => {
