@@ -6,7 +6,9 @@ const axiosInstance = axios.create({
     headers: {
         "Content-Type": "application/json"
     },
+    withCredentials: true // Adaugă această linie dacă ai nevoie de cookies/token-uri
 });
+
 
 axiosInstance.interceptors.request.use(
     (config) => {
