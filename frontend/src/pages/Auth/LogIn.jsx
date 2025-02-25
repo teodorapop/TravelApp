@@ -60,7 +60,7 @@ const LogIn = () => {
       <div className="login-ui-box bg-cyan-300 -bottom-40 right-1/2"/>
 
       <div className="container h-screen flex items-center justify-center px-20 mx-auto">
-        <div className="w-2/4 h-[90vh] flex items-end bg-cover bg-center rounded-lg p-10 z-50" style={{ backgroundImage: "url('https://images.pexels.com/photos/1123767/pexels-photo-1123767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')" }}>
+        <div className="w-2/4 h-[90vh] flex items-end bg-cover bg-[70%_center] rounded-lg p-10 z-50" style={{ backgroundImage: "url('https://images.pexels.com/photos/1123767/pexels-photo-1123767.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1')" }}>
           <div>
             <h4 className="text-5xl text-white font-semibold leading-[58px]">Capture Your <br/>Journeys</h4>
             <p className="text-[15px] text-white leading-6 pr-7 mt-4 ">
