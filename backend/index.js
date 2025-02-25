@@ -28,6 +28,8 @@ app.use(cors({
     credentials: true
 }));
 
+app.use('/uploads', express.static('uploads'));
+
 // Create account
 app.post("/create-account", async (req, res) => {
     console.log("Received data:", req.body);
