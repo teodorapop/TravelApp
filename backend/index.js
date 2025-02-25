@@ -29,6 +29,7 @@ app.use(cors({
 }));
 
 app.use('/uploads', express.static('uploads'));
+app.use('/assets', express.static('assets'));
 
 // Create account
 app.post("/create-account", async (req, res) => {
