@@ -348,7 +348,7 @@ app.get("/travel-posts/filter", authenticateToken, async (req,res) =>{
     }
 })
 
-app.listen(8000);
+// app.listen(8000);
 module.exports = app;
 
 
