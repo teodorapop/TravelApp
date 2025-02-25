@@ -24,6 +24,12 @@
 }
 
 @layer components{
+
+    .text-outline {
+    @apply text-white; 
+    text-shadow: 1px 1px 2px black, 0 0 25px black, 0 0 5px darkblue;
+    }
+    
     .input-box{
     @apply w-full text-sm bg-cyan-600/5 rounded px-5 py-3 mb-4 outline-none;
     }
