@@ -24,7 +24,7 @@ app.use(express.json());
 
 app.use(cors(
     {
-        origin: ["https://travel-app-frontend-sooty.vercel.app"],
+        origin: ["https://travel-app-frontend-grrx.onrender.com"],
         methods: ["GET", "POST"],
         credentials: true,
     }
