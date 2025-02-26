@@ -1,5 +1,5 @@
 require('dotenv').config();
-
+const cloudinary = require('cloudinary');
 // const config = require("./config.json");
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
@@ -16,7 +16,12 @@ const User = require("./models/user.model");
 const TravelPost = require("./models/travelPost.model");
 const {parse} = require("dotenv");
 
-mongoose.connect("mongodb+srv://teodorapop8431:mnDy9NVkVrdLUb74@travelpost.rzmh2.mongodb.net/?retryWrites=true&w=majority&appName=travelpost");
+mongoose.connect(process.env.CONNECTDB);
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const app = express();
 app.use(express.json());
@@ -28,8 +33,8 @@ app.use(cors({
     credentials: true
 }));
 
-app.use('/uploads', express.static('uploads'));
-app.use('/assets', express.static('assets'));
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/assets', express.static(path.join(__dirname,'assets')));
 
 // Create account
 app.post("/create-account", async (req, res) => {
@@ -40,7 +45,6 @@ app.post("/create-account", async (req, res) => {
     if (!fullName || !email || !password) {
         return res.status(400).json({ error: true, message: "All fields are required" });
     }
-
 
     const isUser = await User.findOne({email});
     if(isUser){
@@ -58,7 +62,7 @@ app.post("/create-account", async (req, res) => {
     await user.save();
 
     const accessToken = jwt.sign(
-    {userId: user._id},
+        {userId: user._id},
         process.env.ACCESS_TOKEN_SECRET,
         {expiresIn: "72h",}
     );
@@ -160,51 +164,91 @@ app.get("/get-all-posts", authenticateToken, async (req, res) => {
 })
 
 // Route to handle image upload
-app.post("/image-upload", upload.single("image"), async (req,res) =>{
-    try{
-        if(!req.file){
-            return res.status(400).json({error: true, message: "File is required"});
+// app.post("/image-upload", upload.single("image"), async (req,res) =>{
+//     try{
+//         if(!req.file){
+//             return res.status(400).json({error: true, message: "File is required"});
+//         }
+//
+//         const imageUrl = `https://travel-app-backend-7eko.onrender.com/uploads/${req.file.filename}`;
+//
+//         res.status(201).json({imageUrl});
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({error: true, message: "Something went wrong"});
+//     }
+// });
+
+// Route to handle image upload
+app.post("/image-upload", upload.single("image"), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ error: true, message: "File is required" });
         }
 
-        const imageUrl = `https://travel-app-backend-7eko.onrender.com/uploads/${req.file.filename}`;
+        // URL-ul fișierului încărcat pe Cloudinary
+        const imageUrl = req.file.path;
 
-        res.status(201).json({imageUrl});
+        res.status(201).json({ imageUrl });
     } catch (error) {
-        res.status(500).json({error: true, message: "Something went wrong"});
+        console.error(error);
+        res.status(500).json({ error: true, message: "Something went wrong" });
     }
 });
 
 // Serve static files from the uploads and assets directory
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+//app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
 // Delete an image from uploads folder
-app.delete("/delete-image", async (req,res) =>{
-    const {imageUrl} = req.query;
+// app.delete("/delete-image", async (req,res) =>{
+//     const {imageUrl} = req.query;
+//
+//     if(!imageUrl){
+//         return res.status(400).json({error: true, message: "Image is required"});
+//     }
+//
+//     try{
+//         // Extract the filename from the imageUrl
+//         const filename = path.basename(imageUrl);
+//
+//         // Define the file path
+//         const filePath = path.join(__dirname, "uploads", filename);
+//
+//         // Check if the file exists
+//         if(fs.existsSync(filePath)){
+//             // Delete the file from the uploads folder
+//             fs.unlinkSync(filePath);
+//             res.status(200).json({message:"Image deleted successfully"});
+//         } else {
+//             res.status(200).json({error: true, message: "Image not found"});
+//         }
+//     } catch (error) {
+//         res.status(500).json({error: true, message: error.message});
+//     }
+// })
 
-    if(!imageUrl){
-        return res.status(400).json({error: true, message: "Image is required"});
+// Delete an image from Cloudinary
+app.delete("/delete-image", async (req, res) => {
+    const { imageUrl } = req.query;
+
+    if (!imageUrl) {
+        return res.status(400).json({ error: true, message: "Image URL is required" });
     }
 
-    try{
-        // Extract the filename from the imageUrl
-        const filename = path.basename(imageUrl);
+    try {
+        // Extrage public_id-ul din URL-ul Cloudinary
+        const publicId = imageUrl.split("/").pop().split(".")[0];
 
-        // Define the file path
-        const filePath = path.join(__dirname, "uploads", filename);
+        // Șterge imaginea de pe Cloudinary
+        await cloudinary.uploader.destroy(`uploads/${publicId}`);
 
-        // Check if the file exists
-        if(fs.existsSync(filePath)){
-            // Delete the file from the uploads folder
-            fs.unlinkSync(filePath);
-            res.status(200).json({message:"Image deleted successfully"});
-        } else {
-            res.status(200).json({error: true, message: "Image not found"});
-        }
+        res.status(200).json({ message: "Image deleted successfully" });
     } catch (error) {
-        res.status(500).json({error: true, message: error.message});
+        console.error(error);
+        res.status(500).json({ error: true, message: "Failed to delete image" });
     }
-})
+});
 
 // Edit travel post
 app.put("/edit-post/:id", authenticateToken, async (req,res) =>{
@@ -244,41 +288,73 @@ app.put("/edit-post/:id", authenticateToken, async (req,res) =>{
 })
 
 // Delete a travel post
-app.delete("/delete-post/:id", authenticateToken, async (req,res) =>{
-    const {id} = req.params;
-    const {userId} = req.user;
+// app.delete("/delete-post/:id", authenticateToken, async (req,res) =>{
+//     const {id} = req.params;
+//     const {userId} = req.user;
+//
+//     try{
+//         // Find the travel post by ID and ensure it belongs to the authenticated user
+//         const travelPost = await TravelPost.findOne({_id: id, userId: userId});
+//
+//         if(!travelPost){
+//             return res.status(404).json({error: true, message: "Travel post not found"});
+//         }
+//
+//         // Delete the travel post from the database
+//         await travelPost.deleteOne({_id:id, userId: userId});
+//
+//         // Extract the filename from the imageUrl
+//         const imageUrl = travelPost.imageUrl;
+//         const filename = path.basename(imageUrl);
+//
+//         // Define the file path
+//         const filePath = path.join(__dirname, "uploads", filename);
+//
+//         // Delete the image file from the uploads folder
+//         fs.unlink(filePath, (err) =>{
+//             if(err){
+//                 console.error("Failed to delete the image file: ", err);
+//             }
+//         });
+//
+//         res.status(200).json({message:"Successfully deleted"});
+//     } catch(error){
+//         res.status(500).json({error: true, message: "Something went wrong"});
+//     }
+//
+// })
 
-    try{
+// Delete a travel post
+app.delete("/delete-post/:id", authenticateToken, async (req, res) => {
+    const { id } = req.params;
+    const { userId } = req.user;
+
+    try {
         // Find the travel post by ID and ensure it belongs to the authenticated user
-        const travelPost = await TravelPost.findOne({_id: id, userId: userId});
+        const travelPost = await TravelPost.findOne({ _id: id, userId: userId });
 
-        if(!travelPost){
-            return res.status(404).json({error: true, message: "Travel post not found"});
+        if (!travelPost) {
+            return res.status(404).json({ error: true, message: "Travel post not found" });
+        }
+
+        // Extract the image URL
+        const imageUrl = travelPost.imageUrl;
+
+        // Delete the image from Cloudinary if it's not the placeholder image
+        if (imageUrl && !imageUrl.includes("placeholder.png")) {
+            const publicId = imageUrl.split("/").pop().split(".")[0];
+            await cloudinary.uploader.destroy(`uploads/${publicId}`);
         }
 
         // Delete the travel post from the database
-        await travelPost.deleteOne({_id:id, userId: userId});
+        await travelPost.deleteOne({ _id: id, userId: userId });
 
-        // Extract the filename from the imageUrl
-        const imageUrl = travelPost.imageUrl;
-        const filename = path.basename(imageUrl);
-
-        // Define the file path
-        const filePath = path.join(__dirname, "uploads", filename);
-
-        // Delete the image file from the uploads folder
-        fs.unlink(filePath, (err) =>{
-            if(err){
-                console.error("Failed to delete the image file: ", err);
-            }
-        });
-
-        res.status(200).json({message:"Successfully deleted"});
-    } catch(error){
-        res.status(500).json({error: true, message: "Something went wrong"});
+        res.status(200).json({ message: "Successfully deleted" });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: true, message: "Something went wrong" });
     }
-
-})
+});
 
 // Update isFavourite
 app.put("/update-is-favourite/:id", authenticateToken, async (req, res) =>{
@@ -351,6 +427,3 @@ app.get("/travel-posts/filter", authenticateToken, async (req,res) =>{
 
 app.listen(process.env.PORT || 8000);
 module.exports = app;
-
-
-
