@@ -1,5 +1,5 @@
 require('dotenv').config();
-const cloudinary = require('cloudinary');
+const cloudinary = require('cloudinary').v2;
 // const config = require("./config.json");
 const mongoose = require("mongoose");
 const bcrypt = require('bcrypt');
@@ -183,8 +183,11 @@ app.post("/image-upload", upload.single("image"), async (req, res) => {
             return res.status(400).json({ error: true, message: "File is required" });
         }
 
-        // URL-ul fișierului încărcat pe Cloudinary
-        const imageUrl = req.file.path;
+        // Upload image to Cloudinary
+        const cloudinaryResult = await cloudinary.uploader.upload(req.file.path);
+
+        // Get the Cloudinary URL for the image
+        const imageUrl = cloudinaryResult.secure_url;
 
         res.status(201).json({ imageUrl });
     } catch (error) {
@@ -192,6 +195,7 @@ app.post("/image-upload", upload.single("image"), async (req, res) => {
         res.status(500).json({ error: true, message: "Something went wrong" });
     }
 });
+
 
 // Serve static files from the uploads and assets directory
 //app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -226,6 +230,7 @@ app.use("/assets", express.static(path.join(__dirname, "assets")));
 // })
 
 // Delete an image from Cloudinary
+// Delete an image from Cloudinary
 app.delete("/delete-image", async (req, res) => {
     const { imageUrl } = req.query;
 
@@ -234,11 +239,11 @@ app.delete("/delete-image", async (req, res) => {
     }
 
     try {
-        // Extrage public_id-ul din URL-ul Cloudinary
+        // Extract public_id from the image URL
         const publicId = imageUrl.split("/").pop().split(".")[0];
 
-        // Șterge imaginea de pe Cloudinary
-        await cloudinary.uploader.destroy(`uploads/${publicId}`);
+        // Delete the image from Cloudinary
+        await cloudinary.uploader.destroy(publicId);
 
         res.status(200).json({ message: "Image deleted successfully" });
     } catch (error) {
@@ -246,6 +251,7 @@ app.delete("/delete-image", async (req, res) => {
         res.status(500).json({ error: true, message: "Failed to delete image" });
     }
 });
+
 
 // Edit travel post
 app.put("/edit-post/:id", authenticateToken, async (req,res) =>{
