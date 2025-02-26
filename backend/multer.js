@@ -1,5 +1,5 @@
 const multer = require('multer');
-const cloudinary = require('cloudinary');
+const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 // Configurare Cloudinary
@@ -14,7 +14,7 @@ const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
         folder: 'uploads', // Folderul în care vor fi stocate fișierele pe Cloudinary
-        format: async (req, file) => 'png', // Formați implicit (poți schimba în funcție de fișier)
+        format: async (req, file) => file.mimetype.split('/')[1],
         public_id: (req, file) => {
             // Generează un nume unic pentru fișier folosind timestamp
             return `file-${Date.now()}`;
